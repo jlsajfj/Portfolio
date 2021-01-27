@@ -7,9 +7,9 @@ Mental Bot is a bot I created for a personal server, where we had too many bots.
 1. [Commands](#commands)
    1. [Clear](#clear)
    2. [Ping](#ping)
-2. [Full Code](#full code)
-   1. [Main](Main Bot Code)
-   2. [Clear](#clear code)
+2. [Full Code](#full-code)
+   1. [Main](main-bot-code)
+   2. [Clear](#clear-code)
 
 ## Commands
 
