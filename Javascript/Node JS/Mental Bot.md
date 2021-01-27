@@ -43,7 +43,7 @@ Send.fail(msg, replies.insufficient_permissions)
 
 The permissions themselves are in a JSON file, `perms.json`.
 
-To activate the bot, the user would tag it, and this functionality was created and tested in [Mention Bot](./Mention-Bot.md). This is detailed in more depth there but a basic overview is that it checks the first argument of the command, to see if the first argument tagged ID is the same as the bot's ID. This is shown below.
+To activate the bot, the user would tag it, and this functionality was created and tested in [Mention Bot](./Mention Bot.md). This is detailed in more depth there but a basic overview is that it checks the first argument of the command, to see if the first argument tagged ID is the same as the bot's ID. This is shown below.
 
 ```javascript
 if(msg.mentions.users.keyArray().includes(client.user.id)){
