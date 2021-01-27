@@ -8,7 +8,7 @@ Mental Bot is a bot I created for a personal server, where we had too many bots.
    1. [Clear](#clear)
    2. [Ping](#ping)
 2. [Full Code](#full-code)
-   1. [Main](main-bot-code)
+   1. [Main](#main-bot-code)
    2. [Clear](#clear-code)
 
 ## Commands
@@ -57,7 +57,7 @@ if(msg.mentions.users.keyArray().includes(client.user.id)){
         Send.success(msg, replies.mistake_tag)
         return
     }
-    ... execute commands
+    // execute commands
 }
 ```
 
@@ -67,7 +67,26 @@ The strings `<@!${client.user.id}>` and `<@${client.user.id}>` are how Discord p
 
 ### Clear
 
-The clear command is versatile in usage. The basis of the clear command is the delete function, which can take a variety of arguments.
+The clear command is versatile in usage. The basis of the clear command is the delete function, which can take a variety of arguments. A skeletal overview is shown below.
+
+```javascript
+async function deleteMessages(cnl, count, client, user, mm){
+    if(user){
+        // if a user is passed, clear messages from that user
+        return
+    }
+    
+    await cnl.bulkDelete(count).then(messages => {
+        // otherwise use bulk delete to clear messages
+        return
+    }).catch(async (e) => {
+        // if there are messages over 2 weeks
+        // use custom individual deletion to clear them
+    })
+}
+```
+
+
 
 The most basic usage is purely `@MentalBot clear`, where the bot will clear the latest 100 messages. As shown below, it simply calls the delete function for 100 messages.
 
