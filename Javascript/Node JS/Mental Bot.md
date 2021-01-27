@@ -1,6 +1,6 @@
 # Mental Bot
 
-Mental Bot is a bot I created for a personal server, where we had too many bots. The idea was the condense the most used features of every bot into one. This is still a work in progress.
+Mental Bot is a bot I created for a personal server, where we had too many bots. The idea was the condense the most used features of every bot into one. The bot itself can be found [here](https://github.com/jlsajfj/MentalBot); it is still a work in progress.
 
 ## Contents
 
@@ -43,7 +43,7 @@ Send.fail(msg, replies.insufficient_permissions)
 
 The permissions themselves are in a JSON file, `perms.json`.
 
-To activate the bot, the user would tag it, and this functionality was created and tested in [Mention Bot](../Mention Bot). This is detailed in more depth there but a basic overview is that it checks the first argument of the command, to see if the first argument tagged ID is the same as the bot's ID. This is shown below.
+To activate the bot, the user would tag it, and this functionality was created and tested in [Mention Bot](./Mention-Bot.md). This is detailed in more depth there but a basic overview is that it checks the first argument of the command, to see if the first argument tagged ID is the same as the bot's ID. This is shown below.
 
 ```javascript
 if(msg.mentions.users.keyArray().includes(client.user.id)){
@@ -86,9 +86,7 @@ async function deleteMessages(cnl, count, client, user, mm){
 }
 ```
 
-
-
-The most basic usage is purely `@MentalBot clear`, where the bot will clear the latest 100 messages. As shown below, it simply calls the delete function for 100 messages.
+The most basic usage is `@MentalBot clear`, where the bot will clear the latest 100 messages. As shown below, it simply calls the delete function for 100 messages.
 
 ```javascript
 if(args.length == 2){
