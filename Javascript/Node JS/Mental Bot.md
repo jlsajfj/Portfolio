@@ -9,12 +9,16 @@ Mental Bot is a bot I created for a personal server, where we had too many bots.
    2. [Auto-Reply](#auto-reply)
    3. [Ping](#ping)
 2. [Sending and Logging](#sending-and-logging)
-   1. [Sending](#sending)
+   1. [Colors](#colors)
    2. [Logging](#logging)
+   3. [Sending](#sending)
 3. [Full Code](#full-code)
    1. [Main](#main-bot-code)
    2. [Clear](#clear-code)
    3. [Auto-Reply](#auto-reply-code)
+   4. [Colors](#colors-code)
+   5. [Logging](#logging-code)
+   6. [Sending](#sending-code)
 
 ## Commands
 
@@ -194,7 +198,96 @@ Send.success(message, `:ping_pong: ${timeTaken}ms.`);
 
 ## Sending and Logging
 
-Both sending messages and logging in console were achieved through two files I wrote.
+Both sending messages and logging in console were achieved through two files I wrote. This was done because almost every file required sending or logging, and I wanted to color code the console. This way, it is easier to tell what is going on from a glance. Errors show up red, warnings/info show up yellow, and successes show up green.
+
+### Colors
+
+To add colors to console, specific escape codes are used. These were found on [a stackoverflow](https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color), and put into `colors.js`. They are found in [the code section](#colors-code).
+
+### Logging
+
+Due to the color requirement, logging was shifted into its own file to save space on the top. The color loading is shown below, utilizing destructuring.
+
+```javascript
+const { Reset,Bright,Dim,Underscore,
+    Blink,Reverse,Hidden,FgBlack,
+    FgRed,FgGreen,FgYellow,FgBlue,
+    FgMagenta,FgCyan,FgWhite,BgBlack,
+    BgRed,BgGreen,BgYellow,BgBlue,
+    BgMagenta,BgCyan,BgWhite } = require("./colors.js");
+```
+*Figure 11: Including the colors*
+
+Next, the logging functions are implemented. These are simply inline formatting of strings, with the colors. A small note is that the different logs go to different console streams, incase they are hooked to something apart from console.
+
+```javascript
+function successLog(msg){
+	colorLog(msg, FgGreen)
+}
+
+function failLog(msg){
+	console.error(`${FgRed}${msg}${Reset}`)
+}
+
+function infoLog(msg){
+	console.info(`${FgYellow}${msg}${Reset}`)
+}
+
+function colorLog(msg, color){
+	console.log(`${color}${msg}${Reset}`)
+}
+```
+
+*Figure 12: The separate logs*
+
+### Sending
+
+Sending also utilized logging, as I wanted the bot to log whenever it sent a message. The general gist is the same for all of them, as shown below. It is not actual Javascript, and the square brackets denote the differences.
+
+```javascript
+function send[Success/Info/Fail/Color](recv, msg){
+	return new Promise( (done, error) => {
+		if(recv instanceof TextChannel){
+			recv.send(msg)
+                .then(message => {
+                    Log.[success/info/fail/color](`Sent message: ${message.content}`[, color])
+                    done(message);
+                })
+                .catch(e => error(e));
+		}
+		else{
+			recv.channel.send(msg)
+                .then(message => {
+                    Log.[success/info/fail/color](`Sent message: ${message.content}`[, color])
+                    done(message);
+                })
+                .catch(e => error(e));
+		}
+	});
+}
+```
+
+*Figure 13: Structure for all sending code*
+
+The basic idea is that it sends the message to the channel, then logs to the appropriate log. If the passed variable `recv` is a `TextChannel` then it will send directly to the channel, otherwise it finds the channel the message is in, then sends it. This could actually be done in less lines, as shown below.
+
+```javascript
+function send[Success/Info/Fail/Color](recv, msg){
+    return new Promise( (done, error) => {
+        var ch;
+        if(recv instanceof TextChannel){
+            ch = recv
+        } else {
+            ch = recv.channel
+        }
+        ch.send(msg).then(message => {
+                Log.[success/info/fail/color](`Sent message: ${message.content}`[, color])
+            }).catch(e => error(e));
+    });
+}
+```
+
+*Figure 14: Shortened sending code*
 
 ## Full Code
 
@@ -404,5 +497,169 @@ function ping(message){
 }
 
 module.exports = ping
+```
+
+### Colors Code
+
+```javascript
+module.exports = {
+	"Reset": "\x1b[0m",
+	"Bright": "\x1b[1m",
+	"Dim": "\x1b[2m",
+	"Underscore": "\x1b[4m",
+	"Blink": "\x1b[5m",
+	"Reverse": "\x1b[7m",
+	"Hidden": "\x1b[8m",
+
+	"FgBlack": "\x1b[30m",
+	"FgRed": "\x1b[31m",
+	"FgGreen": "\x1b[32m",
+	"FgYellow": "\x1b[33m",
+	"FgBlue": "\x1b[34m",
+	"FgMagenta": "\x1b[35m",
+	"FgCyan": "\x1b[36m",
+	"FgWhite": "\x1b[37m",
+
+	"BgBlack": "\x1b[40m",
+	"BgRed": "\x1b[41m",
+	"BgGreen": "\x1b[42m",
+	"BgYellow": "\x1b[43m",
+	"BgBlue": "\x1b[44m",
+	"BgMagenta": "\x1b[45m",
+	"BgCyan": "\x1b[46m",
+	"BgWhite": "\x1b[47m"
+}
+```
+
+### Logging Code
+
+```javascript
+const { Reset,Bright,Dim,Underscore,
+    Blink,Reverse,Hidden,FgBlack,
+    FgRed,FgGreen,FgYellow,FgBlue,
+    FgMagenta,FgCyan,FgWhite,BgBlack,
+    BgRed,BgGreen,BgYellow,BgBlue,
+    BgMagenta,BgCyan,BgWhite } = require("./colors.js");
+
+function successLog(msg){
+    colorLog(msg, FgGreen)
+}
+
+function failLog(msg){
+    console.error(`${FgRed}${msg}${Reset}`)
+}
+
+function infoLog(msg){
+    console.info(`${FgYellow}${msg}${Reset}`)
+}
+
+function colorLog(msg, color){
+    console.log(`${color}${msg}${Reset}`)
+}
+
+module.exports = {
+    success: successLog,
+    fail: failLog,
+    info: infoLog,
+    color: colorLog
+}
+```
+
+### Sending Code
+
+```javascript
+const {TextChannel} = require("discord.js")
+const Log = require("./logging.js")
+
+function sendSuccess(recv, msg){
+    return new Promise( (done, error) => {
+        if(recv instanceof TextChannel){
+            recv.send(msg)
+                    .then(message => {
+                        Log.success(`Sent message: ${message.content}`)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+        else{
+            recv.channel.send(msg)
+                    .then(message => {
+                        Log.success(`Sent message: ${message.content}`)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+    });
+}
+
+function sendFail(recv, msg){
+    return new Promise( (done, error) => {
+        if(recv instanceof TextChannel){
+            recv.send(msg)
+                    .then(message => {
+                        Log.fail(`Sent message: ${message.content}`)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+        else{
+            recv.channel.send(msg)
+                    .then(message => {
+                        Log.fail(`Sent message: ${message.content}`)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+    });
+}
+
+function sendInfo(recv, msg){
+    return new Promise( (done, error) => {
+        if(recv instanceof TextChannel){
+            recv.send(msg)
+                    .then(message => {
+                        Log.info(`Sent message: ${message.content}`)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+        else{
+            recv.channel.send(msg)
+                    .then(message => {
+                        Log.info(`Sent message: ${message.content}`)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+    });
+}
+
+function sendColor(recv, msg, color){
+    return new Promise( (done, error) => {
+        if(recv instanceof TextChannel){
+            recv.send(msg)
+                    .then(message => {
+                        Log.color(`Sent message: ${message.content}`, color)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+        else{
+            recv.channel.send(msg)
+                    .then(message => {
+                        Log.color(`Sent message: ${message.content}`, color)
+                        done(message);
+                    })
+                    .catch(e => error(e));
+        }
+    });
+}
+
+module.exports = {
+    success: sendSuccess,
+    fail: sendFail,
+    info: sendInfo,
+    color: sendColor
+}
 ```
 
