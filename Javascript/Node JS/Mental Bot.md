@@ -2,7 +2,7 @@
 
 Mental Bot is a bot I created for a personal server, where we had too many bots. The idea was the condense the most used features of every bot into one. The bot itself can be found [here](https://github.com/jlsajfj/MentalBot); it is still a work in progress.
 
-## Contents
+## Table of Contents
 
 1. [Commands](#commands)
    1. [Clear](#clear)
@@ -76,7 +76,7 @@ The strings `<@!${client.user.id}>` and `<@${client.user.id}>` are how Discord p
 
 ### Clear
 
-The clear command is basic, yet versatile in usage. The basis of the clear command is the delete function, which can take a variety of arguments. A skeletal overview is shown below.
+The clear command is basic, yet versatile in usage. This was initially created and tested in [Clear Bot](./Clear%20Bot.md). The basis of the clear command is the delete function, which can take a variety of arguments. A skeletal overview is shown below.
 
 ```javascript
 async function deleteMessages(cnl, count, client, user, mm){ 
