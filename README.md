@@ -1,6 +1,6 @@
 # Portfolio
 
-This is my portfolio, just getting together what I've done.
+This is my portfolio, just getting together what I've done. Check out the issues to see what is done and what is still in progress.
 
 ## Table of Contents
 
