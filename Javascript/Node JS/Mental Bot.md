@@ -6,7 +6,8 @@ Mental Bot is a bot I created for a personal server, where we had too many bots.
 
 1. [Commands](#commands)
    1. [Clear](#clear)
-   2. [Ping](#ping)
+   2. [Auto-Reply](#auto-reply)
+   3. [Ping](#ping)
 2. [Full Code](#full-code)
    1. [Main](#main-bot-code)
    2. [Clear](#clear-code)
@@ -67,10 +68,10 @@ The strings `<@!${client.user.id}>` and `<@${client.user.id}>` are how Discord p
 
 ### Clear
 
-The clear command is versatile in usage. The basis of the clear command is the delete function, which can take a variety of arguments. A skeletal overview is shown below.
+The clear command is basic, yet versatile in usage. The basis of the clear command is the delete function, which can take a variety of arguments. A skeletal overview is shown below.
 
 ```javascript
-async function deleteMessages(cnl, count, client, user, mm){
+async function deleteMessages(cnl, count, client, user, mm){ 
     if(user){
         // if a user is passed, clear messages from that user
         return
@@ -86,7 +87,11 @@ async function deleteMessages(cnl, count, client, user, mm){
 }
 ```
 
-The most basic usage is `@MentalBot clear`, where the bot will clear the latest 100 messages. As shown below, it simply calls the delete function for 100 messages.
+*Figure 4: Overview of the delete function*
+
+The full code can be found in [the code section](#clear-code).
+
+The most basic usage is `@MentalBot clear`, where the bot will clear the latest 100 messages. As shown in Figure 5, it simply calls the delete function for 100 messages.
 
 ```javascript
 if(args.length == 2){
@@ -94,6 +99,79 @@ if(args.length == 2){
     return
 }
 ```
+
+*Figure 5: Most basic delete function call*
+
+A more advanced usage is `@MentalBot clear @user`. The bot clears any messages from the tagged user, in the last 100 messages. Using the delete function, this is achieved quite simply, as shown below.
+
+```javascript
+if(isNaN(args[2])){
+    if(args[2].match(/<@!{0,1}\d+>/)){
+        var count = 100
+        if(args[3] && !isNaN(args[3])){
+            count = parseInt(args[3])
+        }
+        var user = args[2].substring(args[2].indexOf('<@')+2+(args[2].indexOf('!')==-1?0:1),args[2].indexOf('>'))
+        await deleteMessages(cnl, count, client, user, msg)
+    }
+    return
+}
+```
+
+*Figure 6: Structure for clearing messages from a specific user*
+
+The idea is that if there is an argument after `clear` that is not a number, it should be a user. Then the ID of the user is taken, through a substring of the message.
+
+It should now be noted that for both `clear @user` and `clear`, an argument can be appended: The count of messages to check.
+
+### Auto-Reply
+
+The bot will automatically reply to certain messages, regardless of if it was tagged. The auto-reply config is loaded when a message is sent, which might cause delay. However, this is done so that changes done will register without restarting the bot. The reply config loading is shown below.
+
+```javascript
+await readFile('./auto_replies.json', (err, data) => {
+    if (err) throw err;
+    var auto_replies = JSON.parse(data);
+    if(msg.content in auto_replies){
+        Log.info(`${msg.author.username} sent the message: ${msg.content}`)
+        Send.success(msg, auto_replies[msg.content])
+        return
+    }
+});
+```
+
+*Figure 7: Auto-Reply loading structure*
+
+To set up auto-replies, either edit the JSON file `auto_replies.json` or use the command `@MentalBot setreply message reply`. The JSON structure is shown below.
+
+```JSON
+{
+	"trigger": "response",
+    "Pizza": "Party!"
+}
+```
+
+*Figure 8: JSON structure of the auto-replies*
+
+For the command, it edits the JSON file; hence requiring reloading on message. The command itself is detailed below.
+
+```javascript
+await readFile('./auto_replies.json', (err, data) => {
+    if (err) throw err;
+    var auto_replies = JSON.parse(data);
+    auto_replies[args[2]]=args[3]
+    writeFile('./auto_replies.json', JSON.stringify(auto_replies, null, 4), (err, data) => {
+        if (err) throw err;
+        Send.success(msg, `Set ${args[2]} = ${args[3]}`)
+    })
+});
+```
+
+*Figure 9: Writing new auto-replies to file*
+
+### Ping
+
+A common command on bots, implemented wonderfully by [ZhouJas](https://github.com/ZhouJas/).
 
 ## Full Code
 
@@ -190,8 +268,6 @@ async function clear(msg, args, client){
 	}
 	if(isNaN(args[2])){
 		if(args[2].match(/<@!{0,1}\d+>/)){
-			// console.log(args[2])
-			// console.log(args[2].substring(args[2].indexOf('<@')+2+(args[2].indexOf('!')==-1?0:1),args[2].indexOf('>')))
 			var count = 100
 			if(args[3] && !isNaN(args[3])){
 				count = parseInt(args[3])
@@ -226,15 +302,13 @@ async function deleteMessages(cnl, count, client, user, mm){
 		var m;
 		var username;
 		await client.users.fetch(user).then(u => username = u.username).catch(console.error)
-		await Send.info(cnl, `Clearing messages from ${username} in the last ${count} messages`).then( message => m = message).catch(console.error)
+		await Send.info(cnl, `Clearing messages from ${username} in the last ${count} messages`)
+            .then( message => m = message).catch(console.error)
 		var messages
 		await cnl.messages.fetch({limit: count}).then( mmm => messages = mmm ).catch(console.error)
-		// console.log(messages)
 		var msgs = messages.filter( msg => {
-			// console.log(msg)
 			return msg.author.id === user
 		})
-		// console.log(msgs)
 		await cnl.bulkDelete(msgs).then(messages => {
 			Log.success(`Bulk deleted ${messages.size} message(s)`)
 		}).catch(console.error)
@@ -257,15 +331,12 @@ async function deleteMessages(cnl, count, client, user, mm){
 		if(e instanceof DiscordAPIError){
 			Log.fail("Discord API Error: Deleting over two weeks\nStarting workaround\nTHIS IS VERY SLOW")
 		}
-		// console.error(e)
 		var msgs = cnl.messages
 		var messages
 		await msgs.fetch({limit: count}).then(mmm => messages = mmm).catch(console.error);
 		Log.warn(`Received ${messages.size} messages`)
-		//console.log(messages)
 		var cnt = messages.size
 		for (message of messages.keys()) {
-			// console.log(`deleting ${message}`)
 			await msgs.fetch(message).then( mess => mess.delete()).catch(console.error)
 			cnt -= 1
 			await new Promise(r => setTimeout(r, 1000))
