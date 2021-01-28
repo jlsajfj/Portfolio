@@ -19,7 +19,7 @@ This is the section on Node.JS. For now there are only Discord bots, however I a
 
 ### [Mental Bot](./Mental%20Bot.md)
 
-This includes features from [Mention Bot](./Mention%20Bot.md) and [Clear Bot](./Clear%20Bot), so of the three it is only necessary to read this one.
+This includes features from [Mention Bot](./Mention%20Bot.md) and [Clear Bot](./Clear%20Bot), so of the three it is only necessary to see this one.
 
 ### [Polybot](./Polybot.md)
 
