@@ -8,9 +8,13 @@ Mental Bot is a bot I created for a personal server, where we had too many bots.
    1. [Clear](#clear)
    2. [Auto-Reply](#auto-reply)
    3. [Ping](#ping)
-2. [Full Code](#full-code)
+2. [Sending and Logging](#sending-and-logging)
+   1. [Sending](#sending)
+   2. [Logging](#logging)
+3. [Full Code](#full-code)
    1. [Main](#main-bot-code)
    2. [Clear](#clear-code)
+   3. [Auto-Reply](#auto-reply-code)
 
 ## Commands
 
@@ -130,7 +134,10 @@ The bot will automatically reply to certain messages, regardless of if it was ta
 
 ```javascript
 await readFile('./auto_replies.json', (err, data) => {
-    if (err) throw err;
+    if (err){
+        Log.fail("auto_replies.json has an issue.")
+        Log.fail(err.stack)
+    }
     var auto_replies = JSON.parse(data);
     if(msg.content in auto_replies){
         Log.info(`${msg.author.username} sent the message: ${msg.content}`)
@@ -169,9 +176,25 @@ await readFile('./auto_replies.json', (err, data) => {
 
 *Figure 9: Writing new auto-replies to file*
 
+The two issues present with this layout are as follows:
+
+1. Slight delays when messages are received, as every message will reload the config.
+2. <del>The bot will crash if the JSON is malformed </del> This was fixed, as I thought of the solution while writing this.
+
 ### Ping
 
-A common command on bots, implemented wonderfully by [ZhouJas](https://github.com/ZhouJas/).
+A common command on bots, implemented wonderfully by [ZhouJas](https://github.com/ZhouJas/). It simply gets the current time and subtracts the time of message.
+
+```javascript
+const timeTaken = Date.now() - message.createdTimestamp;
+Send.success(message, `:ping_pong: ${timeTaken}ms.`);
+```
+
+*Figure 10: Ping command*
+
+## Sending and Logging
+
+Both sending messages and logging in console were achieved through two files I wrote.
 
 ## Full Code
 
@@ -346,5 +369,40 @@ async function deleteMessages(cnl, count, client, user, mm){
 }
 
 module.exports = clear
+```
+
+### Auto-Reply Code
+
+```javascript
+const Send = require("../send.js")
+const Log = require("../logging.js")
+const { readFile, writeFile } = require('fs')
+
+async function setreply(msg, args){
+    await readFile('./auto_replies.json', (err, data) => {
+        if (err) throw err;
+        var auto_replies = JSON.parse(data);
+        auto_replies[args[2]]=args[3]
+        writeFile('./auto_replies.json', JSON.stringify(auto_replies, null, 4), (err, data) => {
+            if (err) throw err;
+            Send.success(msg, `Set ${args[2]} = ${args[3]}`)
+        })
+    });
+}
+
+module.exports = setreply
+```
+
+### Ping Code
+
+```javascript
+const Send = require("../send.js")
+
+function ping(message){
+    const timeTaken = Date.now() - message.createdTimestamp;
+    Send.success(message, `:ping_pong: ${timeTaken}ms.`);
+}
+
+module.exports = ping
 ```
 
