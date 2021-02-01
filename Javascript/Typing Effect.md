@@ -1,6 +1,6 @@
 # Typing
 
-The typing effect is a simple JavaScript effect to simulate a user typing on the keyboard. A demo can be found [here](jlsajfj.github.io).
+The typing effect is a simple JavaScript effect to simulate a user typing on the keyboard. A demo can be found [here](https://jlsajfj.github.io/).
 
 ## Table of Contents
 
