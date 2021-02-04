@@ -29,7 +29,7 @@ The startup script is required for a few things. The tag element is obtained, th
 
 ### Flashing Cursor
 
-
+Also simple, but took a while to figure out.
 
 ## Code
 
